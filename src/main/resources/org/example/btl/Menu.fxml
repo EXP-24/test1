@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="704.0" prefWidth="1152.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.btl.controllers.MenuController">
+   <children>
+      <ImageView fitHeight="704.0" fitWidth="1152.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <image>
+            <Image url="@images/menubackground.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="playButton" fitHeight="34.0" fitWidth="230.0" layoutX="469.0" layoutY="352.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/texts/start.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="exitButton" fitHeight="150.0" fitWidth="190.0" layoutX="483.0" layoutY="528.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/texts/exit.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="collectionButton" fitHeight="34.0" fitWidth="320.0" layoutX="418.0" layoutY="415.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/texts/collection.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="creditsButton" fitHeight="34.0" fitWidth="230.0" layoutX="461.0" layoutY="474.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/texts/credits.png" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>
