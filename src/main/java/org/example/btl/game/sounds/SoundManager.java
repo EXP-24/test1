@@ -7,18 +7,24 @@ import java.util.Objects;
 
 public class SoundManager {
 
-    private static final String BOUNCE_PATH = "/org/example/btl/M&S/bounce.mp3";
-    private static final String BRICK_DESTROY_PATH = "/org/example/btl/M&S/brick_destroy.mp3";
-    private static final String BRICK_HIT_PATH = "/org/example/btl/M&S/brick_hit.mp3";
+    private static final String BOUNCE_PATH = "/org/example/btl/M&S/bounce.wav";
+    private static final String BRICK_DESTROY_PATH = "/org/example/btl/M&S/brick_destroy.wav";
+    private static final String BRICK_HIT_PATH = "/org/example/btl/M&S/brick_hit.wav";
+    private static final String POWERUP_PATH = "/org/example/btl/M&S/powerUp.wav";
+    private static final String GUN_FIRE_PATH = "/org/example/btl/M&S/gunFire.wav";
 
     private static Media bounceMedia;
     private static Media brickDestroyMedia;
     private static Media brickHitMedia;
+    private static Media powerUpMedia;
+    private static Media gunFireMedia;
 
     static {
         bounceMedia = loadMedia(BOUNCE_PATH);
         brickDestroyMedia = loadMedia(BRICK_DESTROY_PATH);
         brickHitMedia = loadMedia(BRICK_HIT_PATH);
+        powerUpMedia = loadMedia(POWERUP_PATH);
+        gunFireMedia = loadMedia(GUN_FIRE_PATH);
     }
 
     private static Media loadMedia(String path) {
@@ -34,7 +40,7 @@ public class SoundManager {
     private static void play(Media media) {
         if (media == null) return;
         MediaPlayer player = new MediaPlayer(media);
-        player.setVolume(1.0); // âm lượng tối đa, có thể chỉnh
+        player.setVolume(1.0);
         player.setOnEndOfMedia(player::dispose);
         player.play();
     }
@@ -49,5 +55,13 @@ public class SoundManager {
 
     public static void playBrickHitSound() {
         play(brickHitMedia);
+    }
+
+    public static void playPowerUpSound() {
+        play(powerUpMedia);
+    }
+
+    public static void playGunFire() {
+        play(gunFireMedia);
     }
 }

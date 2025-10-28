@@ -1,4 +1,3 @@
-
 package org.example.btl.game.bricks;
 
 import org.example.btl.game.Brick;
@@ -91,4 +90,3 @@ public class BossBrick extends Brick {
         return hp;
     }
 }
-

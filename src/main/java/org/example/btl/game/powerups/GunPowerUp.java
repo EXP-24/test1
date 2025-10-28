@@ -1,6 +1,7 @@
 package org.example.btl.game.powerups;
 
 import javafx.scene.canvas.GraphicsContext;
+import org.example.btl.game.sounds.SoundManager;
 import org.example.btl.controllers.GameController;
 import org.example.btl.game.*;
 import org.example.btl.game.Brick;
@@ -54,7 +55,12 @@ public class GunPowerUp extends PowerUp {
             while (brickIterator.hasNext()) {
                 Brick brick = brickIterator.next();
                 if (b.isColliding(brick)) {
-                    brickIterator.remove();
+                    brick.takeDamage();
+                    if (brick.isDestroyed()) {
+                        SoundManager.playGunFire();
+                        brickIterator.remove();
+                    }
+                    
                     if (brick.getBrickType() == 7 || brick.getBrickType() == 8)
                         GameManager.addScore(6);
                     else

@@ -151,6 +151,41 @@ public class GameManager {
         }
     }
 
+    private void nextLevel() {
+        resetLevelState();
+        this.currentLevel++;
+        loadLevel(this.currentLevel);
+    }
+
+
+    private void checkLevelCompletion() {
+        for (Brick brick : map.getBricks()) {
+            if (brick.getBrickType() != 9) {
+                return;
+            }
+        }
+        if (!map.getBricks().isEmpty()) {
+            nextLevel();
+        } else {
+            nextLevel();
+        }
+    }
+
+    private void loadLevel(int levelNumber) {
+        if (levelNumber == 11) {
+            map.createBossMap(1152, 704);
+            return;
+        }
+
+        int[][] layout = MapBrick.loadMap(levelNumber);
+
+        if (layout != null) {
+            map.createMap(layout, PLAY_AREA_X, PLAY_AREA_Y);
+        } else {
+            this.gameWon = true;
+        }
+    }
+
     public void updatePaddle() {
         if (leftPressed && !rightPressed) {
             paddle.startMovingLeft();
@@ -169,7 +204,6 @@ public class GameManager {
             if (currentball.isAttached()) {
                 currentball.setX(paddle.getX() + (paddle.getWidth() / 2) - ball.getWidth()/2);
                 currentball.setY(paddle.getY() - 10);
-                continue;
             }
             else {
                 currentball.update();
@@ -193,7 +227,6 @@ public class GameManager {
         }
     }
 
-
     public void checkBrickCollisions() {
         Iterator<Brick> brickIterator = map.getBricks().iterator();
         while (brickIterator.hasNext()) {
@@ -206,7 +239,16 @@ public class GameManager {
                     brick.takeDamage();
                     if (brick.isDestroyed()) {
                         SoundManager.playBrickDestroySound();
-                    } else {
+
+                        if (brick.getBrickType() == 20) {
+
+                            // khi gạch boss vỡ
+                            currentLevel = 5;
+                            loadLevel(currentLevel);
+                            return;
+                        }
+                    }
+                    else {
                         SoundManager.playBrickHitSound();
                     }
 
@@ -214,11 +256,11 @@ public class GameManager {
                         PowerUp newPowerUp;
                         switch (brick.getPowerUpType()) {
                             case 1:
-                                newPowerUp = new TinyBallPowerUp(brick.getX(), brick.getY(), balls);
+                                newPowerUp = new ShrinkPaddlePowerUp(brick.getX(), brick.getY());
                                 activePowerUps.add(newPowerUp);
                                 break;
                             case 2:
-                                newPowerUp = new FastBallPowerUp(brick.getX(), brick.getY(), balls);
+                                newPowerUp = new ExpandPaddlePowerUp(brick.getX(), brick.getY());
                                 activePowerUps.add(newPowerUp);
                                 break;
                             case 3:
@@ -226,11 +268,11 @@ public class GameManager {
                                 activePowerUps.add(newPowerUp);
                                 break;
                             case 4:
-                                newPowerUp = new ExpandPaddlePowerUp(brick.getX(), brick.getY());
+                                newPowerUp = new FastBallPowerUp(brick.getX(), brick.getY(), balls);
                                 activePowerUps.add(newPowerUp);
                                 break;
                             case 5:
-                                newPowerUp = new GunPowerUp(brick.getX(), brick.getY(), this);
+                                newPowerUp = new GunPowerUp(brick.getX(), brick.getY());
                                 activePowerUps.add(newPowerUp);
                                 break;
                         }
@@ -267,6 +309,7 @@ public class GameManager {
             powerUp.update();
 
             if (powerUp.isColliding(paddle)) {
+                SoundManager.playPowerUpSound();
                 boolean effectExist = false;
 
                 for(PowerUp existingEffect : appliedPowerUps) {
@@ -305,6 +348,20 @@ public class GameManager {
         }
     }
 
+    public void resetLevelState() {
+        for (PowerUp powerUp : appliedPowerUps) {
+            powerUp.removeEffect(paddle);
+        }
+        appliedPowerUps.clear();
+        activePowerUps.clear();
+        balls.clear();
+
+        Ball newBall;
+        newBall = new Ball(0, 0, 12, 12, 2, -2, 1);
+        newBall.setAttached(true);
+        balls.add(newBall);
+    }
+  
     public static void addScore(int amount) {
         score += amount;
         if (score > topScore) topScore = score;
@@ -371,5 +428,4 @@ public class GameManager {
             }
         }
     }
-
 }

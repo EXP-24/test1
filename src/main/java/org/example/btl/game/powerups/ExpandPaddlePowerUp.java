@@ -18,7 +18,7 @@ public class ExpandPaddlePowerUp extends PowerUp {
     public void applyEffect(Paddle paddle) {
         if (paddle.getWidth() < 96) {
             paddle.setWidth(paddle.getWidth() * SCALE_FACTOR);
-            Image imagePaddleExpland = loadImage("/org/example/btl/images/paddleExpland.png");
+            Image imagePaddleExpland = loadImage("/org/example/btl/images/paddlesExpland/paddleExpland" + skinIndexSelected + ".png");
             paddle.setImage(imagePaddleExpland);
         }
     }

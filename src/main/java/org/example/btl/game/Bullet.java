@@ -9,9 +9,9 @@ public class Bullet extends MovableObject {
     private boolean active = true;
 
     public Bullet(double x, double y) {
-        super(x, y, 8, 16); //
+        super(x, y, 8, 8); //
         this.dy = -BULLET_SPEED;
-        this.image = loadImage("/org/example/btl/images/Bullet.png");
+        this.image = loadImage("/org/example/btl/images/powerups/Bullet.png");
     }
 
     @Override

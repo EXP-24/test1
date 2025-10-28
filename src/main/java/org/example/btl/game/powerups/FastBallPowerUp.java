@@ -6,9 +6,7 @@ import org.example.btl.game.Paddle;
 import java.util.List;
 
 public class FastBallPowerUp extends PowerUp {
-    private static final double SPEED_MULTIPLIER = 1.25;
-    private static final double NORMAL_SPEED = 1.0;
-    private static final double MAX_SPEED = 1.5;
+    private static final double SPEED_MULTIPLIER = 1.5;
     private List<Ball> balls;
 
     public FastBallPowerUp(double x, double y, List<Ball> balls) {
@@ -21,15 +19,12 @@ public class FastBallPowerUp extends PowerUp {
         for (Ball ball : balls) {
             if (ball != null) {
                 double speed = ball.getSpeed();
-
-                if (speed < NORMAL_SPEED) {
-                    ball.setSpeed(NORMAL_SPEED);
-                }
-
-                else if (speed < MAX_SPEED) {
+                if (speed < 1.0) {
+                    ball.setSpeed(1.0);
+                } else if (speed < 1.5) {
                     ball.setSpeed(speed * SPEED_MULTIPLIER);
-                    if (ball.getSpeed() > MAX_SPEED) {
-                        ball.setSpeed(MAX_SPEED);
+                    if (ball.getSpeed() > 1.5) {
+                        ball.setSpeed(1.5);
                     }
                 }
             }
@@ -39,8 +34,8 @@ public class FastBallPowerUp extends PowerUp {
     @Override
     public void removeEffect(Paddle paddle) {
         for (Ball ball : balls) {
-            if (ball != null && ball.getSpeed() > NORMAL_SPEED) {
-                ball.setSpeed(NORMAL_SPEED);
+            if (ball != null && ball.getSpeed() > 1.0) {
+                ball.setSpeed(1.0);
             }
         }
     }
