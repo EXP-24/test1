@@ -1,10 +1,10 @@
 package org.example.btl.game.powerups;
 
 import javafx.scene.canvas.GraphicsContext;
+import org.example.btl.game.sounds.SoundManager;
+import org.example.btl.controllers.GameController;
 import org.example.btl.game.*;
 import org.example.btl.game.Brick;
-import org.example.btl.game.sounds.SoundManager;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,12 +14,18 @@ public class GunPowerUp extends PowerUp {
     private long lastFireTime;
     private final List<Bullet> bullets;
     private boolean isPickedUp = false;
+    
+    private int score = 0;
+    private int topScore = 0;
 
     private final List<PowerUp> pendingDrops = new ArrayList<>();
+    private GameController controller;
+    private final GameManager gameManager;
 
-    public GunPowerUp(double x, double y) {
+    public GunPowerUp(double x, double y, GameManager gameManager) {
         super(x, y, "Gun", 5000);
         this.bullets = new ArrayList<>();
+        this.gameManager = gameManager;
     }
 
     @Override
@@ -54,6 +60,11 @@ public class GunPowerUp extends PowerUp {
                         SoundManager.playGunFire();
                         brickIterator.remove();
                     }
+                    
+                    if (brick.getBrickType() == 7 || brick.getBrickType() == 8)
+                        GameManager.addScore(6);
+                    else
+                        GameManager.addScore(3);
                     b.deactivate();
 
                     if (brick.getBrickType() == 2) {
@@ -72,7 +83,7 @@ public class GunPowerUp extends PowerUp {
                                 newPowerUp = new ExpandPaddlePowerUp(brick.getX(), brick.getY());
                                 break;
                             case 5:
-                                newPowerUp = new GunPowerUp(brick.getX(), brick.getY());
+                                newPowerUp = new GunPowerUp(brick.getX(), brick.getY(),gameManager);
                                 break;
                         }
                         if (newPowerUp != null) {

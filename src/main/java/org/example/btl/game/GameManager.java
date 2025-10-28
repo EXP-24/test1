@@ -1,5 +1,6 @@
 package org.example.btl.game;
 
+import org.example.btl.controllers.GameController;
 import org.example.btl.game.bricks.MapBrick;
 import org.example.btl.game.Brick;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
@@ -19,6 +21,7 @@ import static org.example.btl.GameApplication.*;
 
 public class GameManager {
 
+    private static GameController controller;
     private Renderer renderer;
     private Paddle paddle;
     private Ball ball;
@@ -33,11 +36,73 @@ public class GameManager {
     private int currentLevel;
     private boolean gameWon = false;
     private GraphicsContext gc;
+    private Image winnerImage;
+    private boolean isWinnerScreenActive = false;
 
-    public GameManager(GraphicsContext gc) {
+    private static int score = 0;
+    private static int topScore = 0;
+
+    public int getScore() {
+        return score;
+    }
+
+    public static void setTopScore(int score) {
+        topScore = score;
+    }
+
+    public int getTopScore() {
+        return topScore;
+    }
+
+    public GameManager(GraphicsContext gc, GameController controller) {
         this.renderer = new Renderer(gc);
         this.gc = gc;
+        this.controller = controller;
         initGame();
+    }
+
+    public static void setController(GameController controllerRef) {
+        controller = controllerRef;
+    }
+
+    private void nextLevel() {
+        for (Ball currentBall : balls) {
+            currentBall.setAttached(true);
+        }
+        this.currentLevel++;
+        if (controller != null) {
+            Platform.runLater(() -> controller.updateLevel(this.currentLevel));
+        }
+        loadLevel(this.currentLevel);
+    }
+
+
+    private void checkLevelCompletion() {
+        if (gameWon) {
+            return;
+        }
+        for (Brick brick : map.getBricks()) {
+            if (brick.getBrickType() != 9) {
+                return;
+            }
+        }
+        if (!map.getBricks().isEmpty()) {
+            nextLevel();
+        } else {
+            nextLevel();
+        }
+    }
+
+    private void loadLevel(int levelNumber) {
+
+        int[][] layout = MapBrick.loadMap(levelNumber);
+
+        if (layout != null) {
+            map.createMap(layout, PLAY_AREA_X, PLAY_AREA_Y);
+            //resetLevelState();
+        } else {
+            this.gameWon = true;
+        }
     }
 
     private void initGame() {
@@ -46,11 +111,22 @@ public class GameManager {
         balls = new ArrayList<>();
         balls.add(ball);
         map = new MapBrick();
-        this.currentLevel = 0;
+        this.currentLevel = 1;
+        if (controller != null) {
+            Platform.runLater(() -> controller.updateLevel(this.currentLevel));
+        }
         loadLevel(currentLevel);
         activePowerUps = new ArrayList<>();
         appliedPowerUps = new ArrayList<>();
         lifeManage = new LifeManage(5);
+
+        try {
+            String imagePath = "/org/example/btl/images/winDemo.png";
+            winnerImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
+        } catch (Exception e) {
+            System.err.println("Không thể tải ảnh 'winner.png'");
+            e.printStackTrace();
+        }
     }
 
     public void handleKeyPressed(KeyEvent event) {
@@ -203,8 +279,24 @@ public class GameManager {
                     }
                 }
                 if (brick.isDestroyed()) {
-                    brickIterator.remove();
-                    break;
+                    if(brick.getBrickType() == 7 || brick.getBrickType() == 8) {
+                        brickIterator.remove();
+                        score += 6;
+                        if(score > topScore) {
+                            topScore = score;
+                        }
+                        controller.updateScore(score, topScore);
+                        break;
+                    }
+                    else {
+                        brickIterator.remove();
+                        score += 3;
+                        if(score > topScore) {
+                            topScore = score;
+                        }
+                        controller.updateScore(score, topScore);
+                        break;
+                    }
                 }
             }
         }
@@ -256,10 +348,6 @@ public class GameManager {
         }
     }
 
-    public void lose() {
-        lifeManage.loseLife(ball);
-    }
-
     public void resetLevelState() {
         for (PowerUp powerUp : appliedPowerUps) {
             powerUp.removeEffect(paddle);
@@ -273,17 +361,57 @@ public class GameManager {
         newBall.setAttached(true);
         balls.add(newBall);
     }
+  
+    public static void addScore(int amount) {
+        score += amount;
+        if (score > topScore) topScore = score;
+
+        if (controller != null) {
+            controller.updateScore(score, topScore);
+        }
+    }
+
+    public void lose() {
+        lifeManage.loseLife(ball);
+        if (lifeManage.getLives() <= 0 && controller != null) {
+            Platform.runLater(() -> controller.updateScoreBoard());
+        }
+    }
+
+    public boolean win() {
+        return isWinnerScreenActive || (lifeManage.getLives() <= 0);
+    }
 
     public void renderGame() {
         if (gameWon) {
-            checkLevelCompletion();
-            resetLevelState();
-        }
+            if (!isWinnerScreenActive) {
+                isWinnerScreenActive = true;
 
-        if (currentLevel == 11 && gameWon) {
-            // hien chien thang
+                // Cập nhật bảng điểm lần cuối khi thắng
+                if (controller != null) {
+                    Platform.runLater(() -> controller.updateScoreBoard());
+                }
+            }
+
+            // Xóa toàn bộ màn hình game
+            renderer.clear();
+
+            // Vẽ màn hình chiến thắng
+            if (winnerImage != null) {
+                double x = (gc.getCanvas().getWidth() - winnerImage.getWidth()) / 2;
+                double y = (gc.getCanvas().getHeight() - winnerImage.getHeight()) / 2;
+                gc.drawImage(winnerImage, x, y);
+            }
+
+            // Ngăn không cho vẽ phần gameplay nữa
             return;
         }
+
+        // ----- Nếu chưa thắng -----
+        if (currentLevel == 10) {
+            // map boss
+        }
+
         objects = new ArrayList<>();
         objects.addAll(lifeManage.getLiveIcons());
         objects.add(paddle);

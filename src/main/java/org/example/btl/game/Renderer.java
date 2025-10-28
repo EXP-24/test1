@@ -1,8 +1,8 @@
 package org.example.btl.game;
 
-import org.example.btl.game.Brick;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import org.example.btl.game.Brick;
 import org.example.btl.game.bricks.MapBrick;
 import java.util.List;
 
